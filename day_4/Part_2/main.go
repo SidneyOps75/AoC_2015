@@ -7,7 +7,7 @@ import (
 
 func main() {
 	secretKey := "iwrupvqb"
-	targetPrefix := "00000"
+	targetPrefix := "000000"
 	var number int
 	for {
 		// Concatenate secretKey with the current number
@@ -20,7 +20,7 @@ func main() {
 		hashString := fmt.Sprintf("%x", hash)
 
 		// Check if the hash starts with the target prefix
-		if hashString[:5] == targetPrefix {
+		if hashString[:6] == targetPrefix {
 			fmt.Printf("Found the number: %d\n", number)
 			break
 		}

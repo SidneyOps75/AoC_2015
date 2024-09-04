@@ -1,49 +1,61 @@
 package main
 
 import (
-	"crypto/md5"
+	"bufio"
 	"fmt"
+	"os"
 )
 
-func main() {
-	secretKey := "iwrupvqb"
-	targetPrefix := "00000"
-	var number int
-	for {
-		// Concatenate secretKey with the current number
-		data := secretKey + Itoa(number)
-
-		// Compute the MD5 hash
-		hash := md5.Sum([]byte(data))
-
-		// Convert hash to a hexadecimal string
-		hashString := fmt.Sprintf("%x", hash)
-
-		// Check if the hash starts with the target prefix
-		if hashString[:5] == targetPrefix {
-			fmt.Printf("Found the number: %d\n", number)
-			break
-		}
-
-		// Increment the number
-		number++
-	}
+type Coordinate struct {
+	x, y int
 }
 
-func Itoa(s int) string {
-	sign := ""
-	if s == 0 {
-		return "0"
+func containsCoordinate(slice []Coordinate, coord Coordinate) bool {
+	for _, v := range slice {
+		if v == coord {
+			return true
+		}
 	}
-	if s < 0 {
-		sign = "-"
-		s = -s
+	return false
+}
+
+func countHousesWithPresents(directions string) int {
+	x, y := 0, 0
+	visited := []Coordinate{{x, y}}
+
+	for _, direction := range directions {
+		switch direction {
+		case '>':
+			x++
+		case '<':
+			x--
+		case '^':
+			y++
+		case 'v':
+			y--
+		}
+
+		currentCoord := Coordinate{x, y}
+		if !containsCoordinate(visited, currentCoord) {
+			visited = append(visited, currentCoord)
+		}
 	}
-	var digits []rune
-	for s > 0 {
-		digit := s % 10
-		digits = append([]rune{rune(digit + '0')}, digits...)
-		s /= 10
+
+	return len(visited)
+}
+
+func main() {
+	file, err := os.Open("input.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
 	}
-	return sign + string(digits)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Scan()
+	directions := scanner.Text()
+
+	housesWithPresents := countHousesWithPresents(directions)
+	fmt.Printf("Number of houses that receive at least one present: %d\n", housesWithPresents)
 }

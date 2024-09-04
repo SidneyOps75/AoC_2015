@@ -1,49 +1,73 @@
 package main
 
 import (
-	"crypto/md5"
+	"bufio"
 	"fmt"
+	"os"
 )
 
-func main() {
-	secretKey := "iwrupvqb"
-	targetPrefix := "000000"
-	var number int
-	for {
-		// Concatenate secretKey with the current number
-		data := secretKey + Itoa(number)
+const gridSize = 1000 // Adjust this based on expected grid size
 
-		// Compute the MD5 hash
-		hash := md5.Sum([]byte(data))
-
-		// Convert hash to a hexadecimal string
-		hashString := fmt.Sprintf("%x", hash)
-
-		// Check if the hash starts with the target prefix
-		if hashString[:6] == targetPrefix {
-			fmt.Printf("Found the number: %d\n", number)
-			break
-		}
-
-		// Increment the number
-		number++
-	}
+type Point struct {
+	x, y int
 }
 
-func Itoa(s int) string {
-	sign := ""
-	if s == 0 {
-		return "0"
+func main() {
+	file, err := os.Open("input.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
 	}
-	if s < 0 {
-		sign = "-"
-		s = -s
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Scan()
+	directions := scanner.Text()
+
+	// Part 1: Original Santa
+	housesVisited := countHousesVisited(directions, false)
+	fmt.Printf("Part 1: Number of houses that received at least one present: %d\n", housesVisited)
+
+	// Part 2: Santa and Robo-Santa
+	housesVisited = countHousesVisited(directions, true)
+	fmt.Printf("Part 2: Number of houses that received at least one present: %d\n", housesVisited)
+}
+
+func countHousesVisited(directions string, useRoboSanta bool) int {
+	grid := make([][]bool, gridSize)
+	for i := range grid {
+		grid[i] = make([]bool, gridSize)
 	}
-	var digits []rune
-	for s > 0 {
-		digit := s % 10
-		digits = append([]rune{rune(digit + '0')}, digits...)
-		s /= 10
+
+	santa := Point{gridSize / 2, gridSize / 2}
+	roboSanta := Point{gridSize / 2, gridSize / 2}
+	grid[santa.y][santa.x] = true
+	housesVisited := 1
+
+	for i, move := range directions {
+		var current *Point
+		if useRoboSanta && i%2 == 1 {
+			current = &roboSanta
+		} else {
+			current = &santa
+		}
+
+		switch move {
+		case '^':
+			current.y--
+		case 'v':
+			current.y++
+		case '>':
+			current.x++
+		case '<':
+			current.x--
+		}
+
+		if !grid[current.y][current.x] {
+			grid[current.y][current.x] = true
+			housesVisited++
+		}
 	}
-	return sign + string(digits)
+
+	return housesVisited
 }

@@ -1,3 +1,3 @@
-module day1
+module AoC
 
-go 1.23
+go 1.22.2
