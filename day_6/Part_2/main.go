@@ -10,9 +10,9 @@ import (
 
 func main() {
 	// Create a 1000x1000 grid initialized to false (lights off)
-	grid := make([][]bool, 1000)
+	grid := make([][]int, 1000)
 	for i := range grid {
-		grid[i] = make([]bool, 1000)
+		grid[i] = make([]int, 1000)
 	}
 
 	file, err := os.Open("input.txt")
@@ -71,11 +71,15 @@ func main() {
 			for j := y1; j <= y2; j++ {
 				switch action {
 				case "turn on":
-					grid[i][j] = true
+
+					grid[i][j]++
 				case "turn off":
-					grid[i][j] = false
+					if grid[i][j] > 0 {
+						grid[i][j]--
+					}
+
 				case "toggle":
-					grid[i][j] = !grid[i][j]
+					grid[i][j] += 2
 				}
 			}
 		}
@@ -86,14 +90,12 @@ func main() {
 	}
 
 	// Count the number of lights that are on
-	count := 0
+	totalbrightness := 0
 	for i := 0; i < 1000; i++ {
 		for j := 0; j < 1000; j++ {
-			if grid[i][j] {
-				count++
-			}
+			totalbrightness += grid[i][j]
 		}
 	}
 
-	fmt.Println("Number of lights that are on:", count)
+	fmt.Println("TotalBrightness:", totalbrightness)
 }
